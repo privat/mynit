@@ -10,7 +10,7 @@
 # * association of arbitrary objects to controls.
 #   they are used when the control is activated.
 # * automatic update of the opponent view.
-# * some build-in like a log or alert messages.
+# * some built-in stuff, like logging or alert messages.
 #
 # To use the framework:
 #
@@ -42,12 +42,12 @@ import nitcorn
 # An additional low-level `href_for` is also provided.
 #
 # You can pass high-level game objects, strings or whatever on these methods.
-# The mapping is done internally without memory leak nor risk of injection.
+# The mapping is done internally without memory leaks.
 class PlayerView
 	# The opponent view, if any.
 	#
 	# Since we consider only duels, the point here is
-	# to allow to force-refresh the opponent windows.
+	# to allow to force-refresh the opponent's window.
 	#
 	# opponents are automatically paired internally.
 	var opponent: nullable PlayerView
@@ -122,7 +122,7 @@ class PlayerView
 	#
 	# If no text is provided, the `entry.to_s` is used.
 	#
-	# NOTE: to use during the `on_render` only.
+	# NOTE: to use during the `on_render` phase only.
 	fun add_entry(entry: Object, text: nullable String): String
 	do
 		if text == null then text = entry.to_s.html_escape
@@ -147,7 +147,7 @@ class PlayerView
 	#
 	# If no text is provided, the `entry.to_s` is used.
 	#
-	# NOTE: to use during the `on_render` only.
+	# NOTE: to use during the `on_render` phase only.
 	fun add_button(entry: Object, text: nullable String): String
 	do
 		if text == null then text = entry.to_s.html_escape
@@ -158,20 +158,20 @@ class PlayerView
 		return """<a href="{{{href}}}" class="btn btn-default">{{{text}}}</a> """
 	end
 
-	# Low level object-passing trough links.
+	# Low level object-passing through links.
 	#
-	# This return a target HTML reference intended to use
+	# This returns a target HTML reference intended to use
 	# in the `href` of a `<a>` tag for instance.
 	#
 	# When followed, the `on_action` with the corresponding `entry` will be called.
 	#
 	# This method is used by `add_entry` and `add_button` but can be used to provide
-	# other kind on controls.
+	# other kind of controls.
 	#
-	# If `remember` is true, then the entity will be automatically selected/unselected
+	# If `remember` is true, the entity will be automatically selected/unselected
 	# in the `player.entity` array when clicked.
 	#
-	# NOTE: to use during the `on_render` only.
+	# NOTE: to use during the `on_render` phase only.
 	fun href_for(entry: Object, remember: nullable Bool): String
 	do
 		var id = list.length
@@ -197,25 +197,25 @@ end
 
 # The main game controller
 #
-# Handle HTTP game request and generate HTML.
+# Handles HTTP game requests and generates HTML.
 # However, the main job is delegated to `PlayerView`.
 #
 # Implements `new_player` to return a specific PlayerView object.
 abstract class GameCorn
 	super Action
 
-	# Hook to handle the creation of new player.
+	# Hook to handle the creation of a new player.
 	#
 	# If the player waits for an opponent, null is given.
-	# Else if a waiting player exists, then the two will be paired.
+	# If a waiting player exists, then the two will be paired.
 	fun new_player(opponent: nullable PlayerView): PlayerView is abstract
 
 	# A player without an opponent yet
 	#
-	# This is used internally to know what player, if any, does need an opponent.
+	# This is used internally to know which player, if any, does need an opponent.
 	var free_player: nullable PlayerView
 
-	# Create (and setup) a new player.
+	# Creates (and setup) a new player.
 	#
 	# CALLS `new_player`
 	fun setup_player: PlayerView
