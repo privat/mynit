@@ -360,13 +360,13 @@ $.get( "ajax/test.html", {ping: true}, function( data ) {
 }
 """
 
-var alert = player.alert
-if alert != null then
-	body += "window.alert(\"{alert}\");"
-	player.alert = null
-end
+		var alert = player.alert
+		if alert != null then
+			body += "window.alert(\"{alert}\");"
+			player.alert = null
+		end
 
-body += """
+		body += """
 
 window.setTimeout(try_refresh, 100);
 </script>
