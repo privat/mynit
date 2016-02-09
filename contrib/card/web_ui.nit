@@ -9,7 +9,7 @@
 #   but you can easily define you own.
 # * association of arbitrary objects to controls.
 #   they are used when the control is activated.
-# * automatic update to the opponent view.
+# * automatic update of the opponent view.
 # * some build-in like a log or alert messages.
 #
 # To use the framework:
@@ -44,7 +44,7 @@ import nitcorn
 # You can pass high-level game objects, strings or whatever on these methods.
 # The mapping is done internally without memory leak nor risk of injection.
 class PlayerView
-	# Its opponent, if any.
+	# The opponent view, if any.
 	#
 	# Since we consider only duels, the point here is
 	# to allow to force-refresh the opponent windows.
@@ -52,7 +52,7 @@ class PlayerView
 	# opponents are automatically paired internally.
 	var opponent: nullable PlayerView
 
-	# Flag to indicate that UI of the player is locked
+	# Flag to indicate that the UI of the player is locked
 	# Usually it means that the opponent is active.
 	#
 	# When true, all controls from `add_entry` and `add_button` are made inactive (non-clickable)
@@ -70,7 +70,7 @@ class PlayerView
 
 	# An imperative message to be shown to the human.
 	#
-	# Use it mainly for error messages
+	# Use it mainly for error messages.
 	#
 	# MODIFY_IT: in `on_action` for the player
 	var alert: nullable String = null is writable
@@ -87,7 +87,7 @@ class PlayerView
 	# Entries can be whatever you want.
 	#
 	# If an entry is selected but not re-added with `add_entry` on `on_render`,
-	# then then entry is automatically unselected (to avoid unaccessible elements in the list)
+	# then the entry is automatically unselected (to avoid unaccessible elements in the list)
 	#
 	# MODIFY_IT: while you can modify it, it is automatically managed.
 	#
@@ -111,7 +111,7 @@ class PlayerView
 	# Hook to handle the input of a player
 	fun on_action(entry: Object) is abstract
 
-	# Hook to handle the HTML rendering of a player page
+	# Hook to handle the full HTML rendering of a player page
 	fun do_render: String is abstract
 
 
@@ -165,7 +165,7 @@ class PlayerView
 	#
 	# When followed, the `on_action` with the corresponding `entry` will be called.
 	#
-	# This method is used by `add_entry` and `add_button` but can bu used to provide
+	# This method is used by `add_entry` and `add_button` but can be used to provide
 	# other kind on controls.
 	#
 	# If `remember` is true, then the entity will be automatically selected/unselected
@@ -204,13 +204,15 @@ end
 abstract class GameCorn
 	super Action
 
-	# Creation of new player.
+	# Hook to handle the creation of new player.
 	#
-	# If the player waits for an opponent, null is given
-	# Else if a waiting player exists, then the two will be paired
+	# If the player waits for an opponent, null is given.
+	# Else if a waiting player exists, then the two will be paired.
 	fun new_player(opponent: nullable PlayerView): PlayerView is abstract
 
 	# A player without an opponent yet
+	#
+	# This is used internally to know what player, if any, does need an opponent.
 	var free_player: nullable PlayerView
 
 	# Create (and setup) a new player.
