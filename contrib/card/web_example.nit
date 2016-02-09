@@ -4,7 +4,7 @@ module web_example
 # Because we need it
 import web_ui
 
-# Import you game logic
+# Import your game logic
 import domain
 
 # The main view code is in a subclass of PlayerView
@@ -19,7 +19,7 @@ class MyPlayerView
 	do
 		# Use game logic information to show things and things to do for the current player.
 		#
-		# Just generate some nice (or not nice) HTML with the content of the player's screen.
+		# Just generate some nice (or not) HTML with the content of the player's screen.
 		#
 		# For controls, you can add:
 		#
