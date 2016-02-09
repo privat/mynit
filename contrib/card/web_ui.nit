@@ -237,6 +237,9 @@ abstract class GameCorn
 		end
 	end
 
+	# Set to true to display additional debug information
+	var debug = false is writable
+
 	redef fun answer(request, url) do
 		# Get the post things
 		var get = request.get_args
@@ -273,7 +276,6 @@ abstract class GameCorn
 
 		# Ok, let's play!
 		var player = session.player
-		var opponent = player.opponent
 
 		# Did the player do something?
 		if not get.is_empty then
@@ -326,14 +328,15 @@ abstract class GameCorn
 		player.entries = player.keep_entries
 		player.keep_entries = tmp
 
-		body += "<p>URL: {request.url} vs {url}</p>"
-		var pget = player.get
-		if pget != null then body += "<p>GET: {pget.join(" * ", ": ")}</p>"
-		body += "<p>LIST: {player.list.keys.join(", ")}</p>"
-		body += "<p>SESS: {session.id_hash}</p>"
-		body += "<p>PLAYER: {player.to_s.html_escape}</p>"
-		body += "<p>OPPONENT: {(opponent or else "-").to_s.html_escape}</p>"
-
+		if debug then
+			body += "<p>URL: {request.url} vs {url}</p>"
+			var pget = player.get
+			if pget != null then body += "<p>GET: {pget.join(" * ", ": ")}</p>"
+			body += "<p>LIST: {player.list.keys.join(", ")}</p>"
+			body += "<p>SESS: {session.id_hash}</p>"
+			body += "<p>PLAYER: {player.to_s.html_escape}</p>"
+			body += "<p>OPPONENT: {(player.opponent or else "-").to_s.html_escape}</p>"
+		end
 
 
 		body += """
