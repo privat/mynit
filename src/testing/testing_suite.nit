@@ -115,7 +115,7 @@ end
 class TestSuite
 
 	# `MModule` under test
-	var mmodule: MModule
+	var mmodule: nullable MModule
 
 	# `ToolContext` to use to display messages.
 	var toolcontext: ToolContext
@@ -219,19 +219,34 @@ class TestCase
 	var test_suite: TestSuite
 
 	# Test method to be compiled and tested.
-	var test_method: MMethodDef
+	var test_method: MEntity # MMethodDef
+
+	fun mentity: MEntity do return test_method
+
+	fun mclassdef: nullable MClassDef
+	do
+		var test_method = self.test_method
+		if test_method isa MPropDef then
+			return test_method.mclassdef
+		else
+			return null
+		end
+	end
+
+	fun full_name: String do return mentity.full_name
 
 	# `ToolContext` to use to display messages and find `nitc` bin.
 	fun toolcontext: ToolContext do return test_suite.toolcontext
 
 	# Generate the test unit for `self` in `file`.
 	fun write_to_nit(file: Template) do
+		var test_method = self.test_method
 		var name = test_method.name
 		file.addn "if name == \"{name}\" then"
-		if test_method.mproperty.is_toplevel then
+		if test_method isa MMethodDef and test_method.mproperty.is_toplevel then
 			file.addn "\t{name}"
 		else
-			file.addn "\tvar subject = new {test_method.mclassdef.name}.nitunit"
+			file.addn "\tvar subject = new {mclassdef.name}.nitunit"
 			file.addn "\tsubject.before_test"
 			file.addn "\tsubject.{name}"
 			file.addn "\tsubject.after_test"
@@ -260,7 +275,7 @@ class TestCase
 			   "ERROR: {method_name} (in file {test_file}.nit): {msg}")
 			toolcontext.modelbuilder.failed_tests += 1
 		else
-			var mmodule = test_method.mclassdef.mmodule
+			var mmodule = test_suite.mmodule
 			var file = mmodule.filepath
 			if file != null then
 				var sav = file.dirname / mmodule.name + ".sav" / test_method.name + ".res"
@@ -282,30 +297,36 @@ class TestCase
 		toolcontext.check_errors
 	end
 
-	# Error occured during test-case execution.
-	var error: nullable String = null
+	# Error occurred during test-case execution.
+	var error: nullable String = null is writable
 
 	# Was the test case executed at least one?
-	var was_exec = false
+	var was_exec = false is writable
+
+	# The `classname` attribute of the XML `testcase` node.
+	#
+	# To be valid, at least a `.` is expected
+	fun xml_classname: String do return "nitunit." + mclassdef.mmodule.full_name + "." + mclassdef.mclass.full_name
+
+	# The `name` attribute of the XML `testcase` node.
+	fun xml_name: String do return test_method.name
 
 	# Return the `TestCase` in XML format compatible with Jenkins.
 	fun to_xml: HTMLTag do
-		var mclassdef = test_method.mclassdef
 		var tc = new HTMLTag("testcase")
-		# NOTE: jenkins expects a '.' in the classname attr
-		tc.attr("classname", "nitunit." + mclassdef.mmodule.full_name + "." + mclassdef.mclass.full_name)
-		tc.attr("name", test_method.mproperty.full_name)
-		if was_exec then
-			tc.add  new HTMLTag("system-out")
-			var n = new HTMLTag("system-err")
-			tc.add n
-			var error = self.error
-			if error != null then
-				n.append error.trunc(8192).filter_nonprintable
-				n = new HTMLTag("error")
+		tc.attr("classname", xml_classname)
+		tc.attr("name", xml_name)
+		var error = self.error
+		if error != null then
+			var n 
+			if was_exec then
+				n = tc.open("error")
 				n.attr("message", "Runtime Error")
-				tc.add n
+			else
+				n = tc.open("failure")
+				n.attr("message", "Compilation Error")
 			end
+			tc.open("system-err").append(error.trunc(8192).filter_nonprintable)
 		end
 		return tc
 	end
