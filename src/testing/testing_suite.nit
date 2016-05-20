@@ -51,7 +51,7 @@ class NitUnitTester
 		var before_module = mmodule.before_test
 		if before_module != null then
 			toolcontext.modelbuilder.total_tests += 1
-			suite.before_module = new TestCase(suite, before_module, toolcontext)
+			suite.before_module = new TestCase(suite, before_module)
 		end
 		# generate all test cases
 		for mclassdef in mmodule.mclassdefs do
@@ -62,7 +62,7 @@ class NitUnitTester
 				if not mpropdef isa MMethodDef or not mpropdef.is_test then continue
 				if not case_match_pattern(mpropdef) then continue
 				toolcontext.modelbuilder.total_tests += 1
-				var test = new TestCase(suite, mpropdef, toolcontext)
+				var test = new TestCase(suite, mpropdef)
 				suite.add_test test
 			end
 		end
@@ -70,7 +70,7 @@ class NitUnitTester
 		var after_module = mmodule.after_test
 		if after_module != null then
 			toolcontext.modelbuilder.total_tests += 1
-			suite.after_module = new TestCase(suite, after_module, toolcontext)
+			suite.after_module = new TestCase(suite, after_module)
 		end
 		suite.run
 		return suite
@@ -222,7 +222,7 @@ class TestCase
 	var test_method: MMethodDef
 
 	# `ToolContext` to use to display messages and find `nitc` bin.
-	var toolcontext: ToolContext
+	fun toolcontext: ToolContext do return test_suite.toolcontext
 
 	# Generate the test unit for `self` in `file`.
 	fun write_to_nit(file: Template) do
