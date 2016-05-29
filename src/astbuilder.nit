@@ -23,7 +23,7 @@ intrude import semantize::scope
 # General factory to build semantic nodes in the AST of expressions
 class ASTBuilder
 	# The associated type context
-	var type_context: TypeContext
+	var type_context: nullable TypeContext
 
 	# The module used as reference for the building
 	# It is used to gather types and other stuff
