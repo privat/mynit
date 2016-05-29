@@ -22,12 +22,15 @@ intrude import semantize::scope
 
 # General factory to build semantic nodes in the AST of expressions
 class ASTBuilder
+	# The associated type context
+	var type_context: TypeContext
+
 	# The module used as reference for the building
-	# It is used to gather types and other stufs
-	var mmodule: MModule
+	# It is used to gather types and other stuff
+	fun mmodule: MModule do return type_context.mmodule
 
 	# The anchor used for some mechanism relying on types
-	var anchor: nullable MClassType
+	fun anchor: nullable MClassType do return type_context.anchor
 
 	# Make a new Int literal
 	fun make_int(value: Int): AIntegerExpr
@@ -35,7 +38,7 @@ class ASTBuilder
 		return new AIntegerExpr.make(value, mmodule.int_type)
 	end
 
-	# Make a new instatiation
+	# Make a new instantiation
 	fun make_new(callsite: CallSite, args: nullable Array[AExpr]): ANewExpr
 	do
 		return new ANewExpr.make(callsite, args)
@@ -101,6 +104,71 @@ class ASTBuilder
 	fun make_if(condition: AExpr, mtype: nullable MType): AIfExpr
 	do
 		return new AIfExpr.make(condition, mtype)
+	end
+
+	# Make a new `sys` node
+	#
+	# Silently returns `null` if `Sys` does not exist.
+	fun make_sys: nullable AImplicitSelfExpr
+	do
+		var s = mmodule.sys_type
+		if s == null then return null
+
+		var res = new AImplicitSelfExpr
+		# Update information, we are looking at `sys` now, not `self`
+		res.is_sys = true
+		res.its_variable = null
+		res.mtype = s
+		return res
+	end
+
+	# Make a new literal string
+	#
+	# Silently returns `null` is String does not exist.
+	fun make_string(text: String): nullable AStringExpr
+	do
+		var s = mmodule.string_type
+
+		var ts = new TString
+		ts.text = "\"" + text.escape_to_nit + "\""
+		var ns = new AStringExpr
+		ns.n_string = ts
+		ns.mtype = s
+		ns.value = text
+		return ns
+	end
+
+	# Make a new filled array
+	#
+	# The type of the elements is `elt_type` and the array is filled with `items`.
+	# `node` is needed to locate the various methods calls.
+	#
+	# Silently returns `null` is Array of needed methods do not exist.
+	fun make_array(node: ANode, items: Collection[AExpr], elt_type: MType): nullable AExpr
+	do
+		# Get the array type and the methods
+		var array_type = mmodule.array_type(elt_type)
+		var call_new = type_context.try_get_method(node, array_type, "with_capacity", false)
+		if call_new == null then return null
+		var call_add = type_context.try_get_method(node, array_type, "add", false)
+		if call_add == null then return null
+
+		var nblock = make_block
+
+		# Initialize the empty array
+		var nnew = make_new(call_new, [make_int(items.length)])
+		nblock.add nnew
+
+		# Push each element
+		for nexpr in items do
+			nblock.add nexpr
+			nblock.add make_call(nnew.make_var_read, call_add, [nexpr.make_var_read])
+		end
+
+		# Returns the array
+		nblock.add nnew.make_var_read
+
+		return nblock
 	end
 end
 
