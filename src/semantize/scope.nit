@@ -254,9 +254,15 @@ redef class APropdef
 	# The break escape mark associated with the return
 	var return_mark: nullable EscapeMark
 
+	# The implicit `self` variable for the whole property
+	var selfvariable: nullable Variable
+
 	# Entry point of the scope analysis
 	fun do_scope(toolcontext: ToolContext)
 	do
+		var selfvariable = new Variable("self")
+		self.selfvariable = selfvariable
+
 		var v = new ScopeVisitor(toolcontext, self)
 		v.enter_visit(self)
 		v.shift_scope

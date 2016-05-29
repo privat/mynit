@@ -48,7 +48,8 @@ private class TypeVisitor
 	# The analyzed property
 	var mpropdef: nullable MPropDef
 
-	var selfvariable = new Variable("self")
+	# The local variable associated to self
+	var selfvariable: nullable Variable
 
 	# Is `self` use restricted?
 	# * no explicit `self`
@@ -65,12 +66,6 @@ private class TypeVisitor
 			var mclassdef = mpropdef.mclassdef
 			self.mclassdef = mclassdef
 			self.anchor = mclassdef.bound_mtype
-
-			var mclass = mclassdef.mclass
-
-			var selfvariable = new Variable("self")
-			self.selfvariable = selfvariable
-			selfvariable.declared_type = mclass.mclass_type
 
 			var mprop = mpropdef.mproperty
 			if mprop isa MMethod and mprop.is_new then
@@ -743,9 +738,6 @@ redef class APropdef
 	fun do_typing(modelbuilder: ModelBuilder)
 	do
 	end
-
-	# The variable associated to the receiver (if any)
-	var selfvariable: nullable Variable
 end
 
 redef class AMethPropdef
@@ -755,7 +747,8 @@ redef class AMethPropdef
 		if mpropdef == null then return # skip error
 
 		var v = new TypeVisitor(modelbuilder, mpropdef.mclassdef.mmodule, mpropdef)
-		self.selfvariable = v.selfvariable
+		v.selfvariable = self.selfvariable
+		v.selfvariable.declared_type = mpropdef.mclassdef.mclass.mclass_type
 
 		var mmethoddef = self.mpropdef.as(not null)
 		var msignature = mmethoddef.msignature
@@ -822,7 +815,8 @@ redef class AAttrPropdef
 		if mpropdef == null or mpropdef.msignature == null then return # skip error
 
 		var v = new TypeVisitor(modelbuilder, mpropdef.mclassdef.mmodule, mpropdef)
-		self.selfvariable = v.selfvariable
+		v.selfvariable = self.selfvariable
+		v.selfvariable.declared_type = mpropdef.mclassdef.mclass.mclass_type
 
 		var nexpr = self.n_expr
 		if nexpr != null then
@@ -1744,6 +1738,7 @@ redef class ASelfExpr
 			v.error(self, "Error: `self` cannot be used in top-level method.")
 		end
 		var variable = v.selfvariable
+		assert variable != null
 		self.its_variable = variable
 		self.mtype = v.get_variable(self, variable)
 	end
@@ -1990,7 +1985,7 @@ redef class ASuperExpr
 	do
 		var anchor = v.anchor
 		assert anchor != null
-		var recvtype = v.get_variable(self, v.selfvariable)
+		var recvtype = v.get_variable(self, v.selfvariable.as(not null))
 		assert recvtype != null
 		var mproperty = v.mpropdef.mproperty
 		if not mproperty isa MMethod then
@@ -2029,7 +2024,7 @@ redef class ASuperExpr
 	do
 		var anchor = v.anchor
 		assert anchor != null
-		var recvtype = v.get_variable(self, v.selfvariable)
+		var recvtype = v.get_variable(self, v.selfvariable.as(not null))
 		assert recvtype != null
 		var mpropdef = v.mpropdef
 		assert mpropdef isa MMethodDef
