@@ -412,7 +412,7 @@ redef class APropdef
 	# `ssa` Current instance of SSA
 	fun ssa_destruction(ssa: SSA)
 	do
-		var builder = new ASTBuilder(mpropdef.mclassdef.mmodule, mpropdef.mclassdef.bound_mtype)
+		var builder = new ASTBuilder
 
 		# Iterate over all phi-functions
 		for phi in ssa.phi_functions do
