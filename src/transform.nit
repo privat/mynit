@@ -21,6 +21,8 @@ import astvalidation
 import semantize
 intrude import semantize::scope
 intrude import semantize::typing
+private import counter
+private import astprinter
 
 redef class ToolContext
 	var transform_phase: Phase = new TransformPhase(self, [typing_phase, auto_super_init_phase])
@@ -60,12 +62,14 @@ private class TransformVisitor
 	var mclassdef: MClassDef is noinit
 	var mpropdef: MPropDef
 	var builder: ASTBuilder is noinit
+	var type_context: TypeContext is noinit
 
 	init
 	do
 		self.mclassdef = mpropdef.mclassdef
 		self.mmodule = mclassdef.mmodule
-		self.builder = new ASTBuilder(mmodule, mpropdef.mclassdef.bound_mtype)
+		self.type_context = new TypeContext(phase.toolcontext.modelbuilder, mmodule, mpropdef)
+		self.builder = new ASTBuilder(self.type_context)
 	end
 
 	redef fun visit(node)
@@ -485,5 +489,67 @@ redef class AAttrReassignExpr
 		nblock.add(nwrite)
 
 		replace_with(nblock)
+	end
+end
+
+redef class AAssertExpr
+	# Inject `else` body if there is none and `assert_call_failed` exists.
+	redef fun accept_transform_visitor(v)
+	do
+		var n_expr = self.n_expr
+		if n_expr isa ANotExpr then n_expr = n_expr.n_expr
+		do if n_expr isa ASendExpr then
+			# TODO: handle more than a single call
+
+			# Check we have what is needed
+			# * a call valid site
+			var call = n_expr.callsite
+			if call == null then break
+			# * no else block
+			if n_else != null then break
+			# * a `sys` object
+			var s = v.builder.make_sys
+			if s == null then break
+			# * a `assert_call_failed` method
+			var m = v.type_context.try_get_method(self, s.mtype.as(not null), "assert_call_failed", false)
+			if m == null then break
+			# * the string of the method name
+			var name = v.builder.make_string(call.mproperty.full_name)
+			if name == null then break
+
+			# Let's do magic now!
+
+			# Collect all the arguments of the call
+			# This will be an alternated list of pairs: (name, value)
+			var args = new Array[AExpr]
+
+			# Get the receiver, and add it to the array
+			var ne = n_expr.n_expr
+			args.add v.builder.make_string("self").as(not null)
+			args.add ne.make_var_read
+
+			# Get each argument, an add them to the array
+			var msig = call.msignature
+			var i = 0
+			for na in n_expr.raw_arguments do
+				args.add v.builder.make_string(msig.mparameters[i].name).as(not null)
+				args.add na.make_var_read
+				i += 1
+			end
+
+			# The new `else` block
+			var nelse = v.builder.make_block
+			n_else = nelse
+
+			# Make the array of arguments
+			var array = v.builder.make_array(self, args, v.mmodule.object_type.as_nullable)
+			if array == null then break
+
+			# Make the call
+			var ncall = v.builder.make_call(s, m, [name, array])
+			nelse.add ncall
+			return
+		end
+		super
 	end
 end
