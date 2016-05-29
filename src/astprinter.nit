@@ -90,6 +90,25 @@ redef class ABlockExpr
 	end
 end
 
+redef class AAssertExpr
+	redef fun accept_printer(v)
+	do
+		v.eol
+		v.write("assert ")
+		v.indent
+		v.enter_visit(n_expr)
+		v.unindent
+		var nelse = n_else
+		if nelse != null then
+			v.eol
+			v.write("else ")
+			v.indent
+			v.enter_visit(nelse)
+			v.unindent
+		end
+	end
+end
+
 redef class AIntegerExpr
 	redef fun accept_printer(v)
 	do
@@ -130,6 +149,24 @@ redef class ASendExpr
 			end
 			v.unindent
 			v.write(")")
+		end
+	end
+end
+
+redef class ASelfExpr
+	redef fun accept_printer(v)
+	do
+		v.write("self")
+	end
+end
+
+redef class AImplicitSelfExpr
+	redef fun accept_printer(v)
+	do
+		if is_sys then
+			v.write("sys")
+		else
+			super
 		end
 	end
 end
