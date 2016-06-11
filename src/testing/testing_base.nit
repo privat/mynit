@@ -256,16 +256,24 @@ abstract class UnitTest
 		tc.attr("classname", xml_classname)
 		tc.attr("name", xml_name)
 		tc.attr("time", real_time.to_s)
+		tc.attr("status", "A status")
+		tc.attr("file", "A File case")
+		tc.attr("line", "A Line case")
+		tc.attr("group", "A Group case")
+
+		var output = self.raw_output
 		var error = self.error
 		if error != null then
+			var node
 			if was_exec then
-				tc.open("error").attr("message", "A message").append(error)
+				node = tc.open("error").attr("message", error)
 			else
-				tc.open("failure").attr("message", "A message").append(error)
+				node = tc.open("failure").attr("message", error)
 			end
-		end
-		var output = self.raw_output
-		if output != null then
+			if output != null then
+				node.append(output.trunc(8192).filter_nonprintable)
+			end
+		else if output != null then
 			tc.open("system-err").append(output.trunc(8192).filter_nonprintable)
 		end
 		return tc

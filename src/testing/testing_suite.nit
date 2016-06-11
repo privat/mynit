@@ -181,6 +181,9 @@ class TestSuite
 	# Contents depends on the `run` execution.
 	fun to_xml: HTMLTag do
 		var n = new HTMLTag("testsuite")
+		n.attr("file", "A File")
+		n.attr("name", "A Name")
+		n.attr("log", "A Log")
 		n.attr("package", mmodule.name)
 		var failure = self.failure
 		if failure != null then
@@ -188,6 +191,8 @@ class TestSuite
 			f.attr("message", failure.to_s)
 			n.add f
 		end
+		var props = n.open("properties")
+		props.open("property").attr("name", "file").attr("value", mmodule.location.file.filename)
 		for test in test_cases do n.add test.to_xml
 		return n
 	end
