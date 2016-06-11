@@ -187,9 +187,8 @@ class TestSuite
 			var f = new HTMLTag("failure")
 			f.attr("message", failure.to_s)
 			n.add f
-		else
-			for test in test_cases do n.add test.to_xml
 		end
+		for test in test_cases do n.add test.to_xml
 		return n
 	end
 
