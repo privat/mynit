@@ -320,12 +320,16 @@ class TestCase
 	end
 
 	redef fun xml_classname do
-		var mclassdef = test_method.mclassdef
-		return "nitunit." + mclassdef.mmodule.full_name + "." + mclassdef.mclass.full_name
+		var a = test_method.full_name.split("$")
+		return "nitunit.{a[0]}.{a[1]}"
+		#var mclassdef = test_method.mclassdef
+		#return "nitunit." + mclassdef.mmodule.mpackage.name + "." + mclassdef.mmodule.name + "." + mclassdef.mclass.name
 	end
 
 	redef fun xml_name do
-		return test_method.mproperty.full_name
+		var a = test_method.full_name.split("$")
+		return a[2]
+		#return test_method.mproperty.name
 	end
 end
 
