@@ -139,7 +139,7 @@ class TestSuite
 			for case in test_cases do
 				case.is_done = true
 				case.error = "Compilation Error"
-				#case.raw_output = failure
+				case.raw_output = failure
 				toolcontext.modelbuilder.failed_tests += 1
 				toolcontext.clear_progress_bar
 				toolcontext.show_unit(case)
@@ -322,14 +322,11 @@ class TestCase
 	redef fun xml_classname do
 		var a = test_method.full_name.split("$")
 		return "nitunit.{a[0]}.{a[1]}"
-		#var mclassdef = test_method.mclassdef
-		#return "nitunit." + mclassdef.mmodule.mpackage.name + "." + mclassdef.mmodule.name + "." + mclassdef.mclass.name
 	end
 
 	redef fun xml_name do
 		var a = test_method.full_name.split("$")
 		return a[2]
-		#return test_method.mproperty.name
 	end
 end
 

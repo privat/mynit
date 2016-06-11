@@ -259,9 +259,9 @@ abstract class UnitTest
 		var error = self.error
 		if error != null then
 			if was_exec then
-				tc.open("error").append(error)
+				tc.open("error").attr("message", "A message").append(error)
 			else
-				tc.open("failure").append(error)
+				tc.open("failure").attr("message", "A message").append(error)
 			end
 		end
 		var output = self.raw_output
