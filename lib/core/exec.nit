@@ -240,7 +240,7 @@ class ProcessWriter
 	super Writer
 
 	# File Descriptor used for the output.
-	var stream_out: Writer is noinit
+	var stream_out: FileWriter is noinit
 
 	redef fun close do stream_out.close
 
