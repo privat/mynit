@@ -12,7 +12,7 @@ class Command
 	# The arguments of the program.
 	var args = new Array[String]
 
-	# Was `run` already called?
+	# Was `start` already called?
 	fun is_started: Bool do return process != null
 
 	# The process object
@@ -72,15 +72,17 @@ class Command
 		var s = status
 		if s != null then return s
 
-		run
+		start
 		var p = process
 		assert p != null
-		print "#WAIT"
+
 		var i = cached_stdin
 		if i != null then i.close
 		var o = cached_stdout
 		if o != null then o.close
+
 		p.wait
+
 		s = p.status
 		status = s
 		return s
@@ -97,7 +99,7 @@ class Command
 	# This is an hard requirement.
 	#
 	# Moreover, to avoid deadlock, the command must be started before anything is written.
-	# Therefore, if needed, `run` will be implicitly called on the first write access.
+	# Therefore, if needed, `start` will be implicitly called on the first write access.
 	fun stdin: Writer
 	do
 		var res = cached_stdin
@@ -122,7 +124,7 @@ class Command
 	# This is an hard requirement.
 	#
 	# Moreover, to avoid deadlock, the command must be started before anything is read.
-	# Therefore, if needed, `run` will be implicitly called on the first read access.
+	# Therefore, if needed, `start` will be implicitly called on the first read access.
 	fun stdout: Reader
 	do
 		var res = cached_stdout
@@ -143,6 +145,10 @@ private abstract class CmdStream
 
 	# The associated command
 	var command: Command
+
+	redef fun start do command.start
+
+	redef fun finish do command.finish
 end
 
 # Handle stdin redirection
@@ -160,7 +166,6 @@ private class CmdWriter
 	do
 		var p = stream
 		if p != null then return p
-		print "# irun"
 		command.start
 		return stream.as(not null)
 	end
@@ -193,7 +198,6 @@ private class CmdReader
 	do
 		var p = stream
 		if p != null then return p
-		print "# orun"
 		command.start
 		return stream.as(not null)
 	end
@@ -220,6 +224,12 @@ private class CmdReader
 	do
 		var p = run_process
 		return p.read_byte
+	end
+
+	redef fun read_char
+	do
+		var p = run_process
+		return p.read_char
 	end
 end
 
