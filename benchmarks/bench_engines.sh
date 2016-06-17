@@ -273,6 +273,24 @@ function bench_compilation_time
 }
 bench_compilation_time
 
+function bench_misc
+{
+	test -f "../src/nitc.old" || return
+	test -f "../src/nitc" || return
+	name="$FUNCNAME"
+	skip_test "$name" && return
+	prepare_res "$name-old.dat" "old" "../src/nitc.old"
+	run_compiler "nitc-old" ../src/nitc.old
+	prepare_res "$name-new.dat" "new" "../src/nitc"
+	run_compiler "nitc-new" ../src/nitc
+	prepare_res "$name-oldsg.dat" "oldsg" "../src/nitc.old --sg"
+	run_compiler "nitc-oldsg" ../src/nitc.old --semi-global
+	prepare_res "$name-newsg.dat" "newsg" "../src/nitc --sg"
+	run_compiler "nitc-newsg" ../src/nitc --semi-global
+	plot "$name.gnu"
+}
+bench_misc
+
 echo >>"$html" "</body></html>"
 
 echo >>"$xml" "</testsuite></testsuites>"
