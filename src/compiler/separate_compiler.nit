@@ -877,7 +877,7 @@ class SeparateCompiler
 			self.provide_declaration("BOX_{c_name}", "val* BOX_{c_name}({mtype.ctype_extern});")
 			v.add_decl("/* allocate {mtype} */")
 			v.add_decl("val* BOX_{mtype.c_name}({mtype.ctype_extern} value) \{")
-			v.add("struct instance_{c_name}*res = nit_alloc(sizeof(struct instance_{c_name}));")
+			v.add("struct instance_{c_name}*res = nit_raw_alloc(sizeof(struct instance_{c_name}));")
 			v.compiler.undead_types.add(mtype)
 			v.require_declaration("type_{c_name}")
 			v.add("res->type = &type_{c_name};")
@@ -899,7 +899,7 @@ class SeparateCompiler
 			else
 				var res = v.new_named_var(mtype, "self")
 				res.is_exact = true
-				v.add("{res} = nit_alloc(sizeof(struct instance_{mtype.c_name}));")
+				v.add("{res} = nit_raw_alloc(sizeof(struct instance_{mtype.c_name}));")
 				v.add("{res}->type = type;")
 				hardening_live_type(v, "type")
 				v.require_declaration("class_{c_name}")
@@ -949,7 +949,7 @@ class SeparateCompiler
 			else
 				var res = v.new_named_var(mtype, "self")
 				res.is_exact = true
-				v.add("{res} = nit_alloc(sizeof(struct instance_{pointer_type.c_name}));")
+				v.add("{res} = nit_raw_alloc(sizeof(struct instance_{pointer_type.c_name}));")
 				v.add("{res}->type = type;")
 				hardening_live_type(v, "type")
 				v.require_declaration("class_{c_name}")
@@ -972,7 +972,7 @@ class SeparateCompiler
 			res.is_exact = true
 			var attrs = self.attr_tables.get_or_null(mclass)
 			if attrs == null then
-				v.add("{res} = nit_alloc(sizeof(struct instance));")
+				v.add("{res} = nit_raw_alloc(sizeof(struct instance));")
 			else
 				v.add("{res} = nit_alloc(sizeof(struct instance) + {attrs.length}*sizeof(nitattribute_t));")
 			end

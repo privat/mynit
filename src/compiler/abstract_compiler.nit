@@ -2551,7 +2551,7 @@ redef class AMethPropdef
 				v.ret(v.new_expr("!{res}", ret.as(not null)))
 				return true
 			else if pname == "new" then
-				v.ret(v.new_expr("(char*)nit_alloc({arguments[1]})", ret.as(not null)))
+				v.ret(v.new_expr("(char*)nit_raw_alloc({arguments[1]})", ret.as(not null)))
 				return true
 			else if pname == "fetch_4_chars" then
 				v.ret(v.new_expr("(long)*((uint32_t*)({arguments[0]} + {arguments[1]}))", ret.as(not null)))
