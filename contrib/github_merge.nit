@@ -30,9 +30,6 @@ redef class GithubCurl
 	# Get a given pull request (PR)
 	fun getpr(repo: String, number: Int): nullable JsonObject
 	do
-		var ir = get_and_check("https://api.github.com/repos/{repo}/issues/{number}")
-		var irm = ir.json_as_map
-		if not irm.has_key("pull_request") then return null
 		var pr = get_and_check("https://api.github.com/repos/{repo}/pulls/{number}")
 		var prm = pr.json_as_map
 		var sha = prm["head"].json_as_map["sha"].to_s
@@ -123,7 +120,7 @@ var curl = new GithubCurl(auth, "Merge-o-matic (nitlang/nit)")
 
 if args.is_empty then
 	# Without args, list `ok_will_merge`
-	var x = curl.get_and_check("https://api.github.com/repos/{repo}/issues?{query}")
+	var x = curl.get_and_check("https://api.github.com/repos/{repo}/pulls?direction=asc")
 	var list = new Array[String]
 	for y in x.json_as_a do
 		var number = y.json_as_map["number"].as(Int)
