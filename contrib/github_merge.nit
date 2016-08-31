@@ -39,24 +39,18 @@ redef class GithubCurl
 		var statuses = get_and_check("https://api.github.com/repos/{repo}/commits/{sha}/status")
 		statuses = statuses.json_as_map
 		prm["statuses"] = statuses
-		print "{prm["title"].to_s}: by {prm["user"].json_as_map["login"].to_s} (# {prm["number"].to_s})"
 		var mergeable = prm["mergeable"]
-		if mergeable != null then
-			print "\tmergeable: {mergeable.to_s}"
-		else
-			print "\tmergeable: unknown"
-		end
+		if mergeable != null then prm["mergeable"] = "unknown"
 		var state = statuses["state"]
 		if state == null then
-			print "\tstatus: not tested"
+			prm["status"] = "not tested"
 		else
-			print "\tstatus: {state}"
+			prm["status"] = state
 			var sts = statuses["statuses"].json_as_a
 			for st in sts do
 				st = st.json_as_map
 				var ctx = st["context"].to_s
 				state = st["state"].to_s
-				print "\tstatus {ctx}: {state}"
 				prm["status-{ctx}"] = state
 			end
 		end
@@ -91,7 +85,13 @@ redef class GithubCurl
 		end
 		return res
 	end
+end
 
+fun printpr(pr: JsonObject)
+do
+	print "{pr["title"].to_s}: by {pr["user"].json_as_map["login"].to_s} (# {pr["number"].to_s})"
+	print "\tmergeable: {pr["mergeable"].to_s}"
+	print "\tstatus: {pr["status"].to_s}"
 end
 
 if "NIT_TESTING".environ == "true" then exit 0
@@ -135,6 +135,7 @@ if args.is_empty then
 				continue label
 			end
 		end
+		printpr(pr)
 		list.add number.to_s
 	end label
 
@@ -150,6 +151,7 @@ for arg in args do
 		print "Not a PR: {number}"
 		return
 	end
+	printpr(pr)
 	var revs = curl.getrev(repo, pr)
 
 	var mergemsg = new Template
