@@ -95,12 +95,12 @@ if "NIT_TESTING".environ == "true" then exit 0
 
 var opt_repo = new OptionString("Repository (e.g. nitlang/nit)", "-r", "--repo")
 var opt_auth = new OptionString("OAuth token", "--auth")
-var opt_query = new OptionString("Query to get issues (e.g. label=ok_will_merge)", "-q", "--query")
+var opt_label = new OptionString("Label to filter (e.g. label=ok_will_merge)", "-l", "--label")
 var opt_keepgoing = new OptionBool("Skip merge conflicts", "-k", "--keep-going")
 var opt_all = new OptionBool("Merge all", "-a", "--all")
 var opt_status = new OptionArray("A status context that must be \"success\" (e.g. default)", "--status")
 var opts = new OptionContext
-opts.add_option(opt_repo, opt_auth, opt_query, opt_status, opt_all, opt_keepgoing)
+opts.add_option(opt_repo, opt_auth, opt_label, opt_status, opt_all, opt_keepgoing)
 
 opts.parse(sys.args)
 var args = opts.rest
@@ -114,7 +114,7 @@ end
 
 var repo = opt_repo.value or else "nitlang/nit"
 
-var query = opt_query.value or else "labels=ok_will_merge"
+var labels = opt_label.value or else "ok_will_merge"
 
 var curl = new GithubCurl(auth, "Merge-o-matic (nitlang/nit)")
 
@@ -128,7 +128,22 @@ if args.is_empty then
 		if pr == null then continue
 		for ctx in opt_status.value do
 			if pr.get_or_null("status-{ctx}") != "success" then
-				print "No \"success\" for {ctx}. Skip."
+				#print "No \"success\" for {ctx}. Skip."
+				continue label
+			end
+		end
+		if labels != "" then
+			var found_label = false
+			var i = curl.get_and_check("https://api.github.com/repos/{repo}/issues/{number}")
+			var ls = i.json_as_map.get_or_null("labels").json_as_a
+			for l in ls do
+				if l.json_as_map["name"] == labels then
+					found_label = true
+					break
+				end
+			end
+			if not found_label then
+				#print "No label \"{labels}\". Skip."
 				continue label
 			end
 		end
