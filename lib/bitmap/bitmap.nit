@@ -211,11 +211,11 @@ class Bitmap
 		var fw = new FileWriter.open(path)
 		# Write bitmap header
 		for x in [0..self.bitmap_header.length[ do
-			fw.write(self.bitmap_header[x].code_point.to_s)
+			fw.write_byte(self.bitmap_header[x].to_b)
 		end
 		# Write dib header
 		for x in [0..self.dib_header.length[ do
-			fw.write(self.dib_header[x].code_point.to_s)
+			fw.write_byte(self.dib_header[x].to_b)
 		end
 		# Write color table (if any)
 		# Write data (no padding for now)
@@ -226,9 +226,9 @@ class Bitmap
 				var red = pixel >> 16
 				var green = (pixel & 0x00FF00) >> 8
 				var blue = pixel & 0x000000FF
-				fw.write(red.code_point.to_s)
-				fw.write(green.code_point.to_s)
-				fw.write(blue.code_point.to_s)
+				fw.write_byte(red.to_b)
+				fw.write_byte(green.to_b)
+				fw.write_byte(blue.to_b)
 			end
 		end
 		fw.close
