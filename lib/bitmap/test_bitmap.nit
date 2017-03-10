@@ -33,6 +33,19 @@ import test_suite
 class TestBitmap
 	super TestSuite
 
+	fun test_get_set do
+		var bitmap = new Bitmap.with_size(256, 256)
+		for x in [0..255[ do for y in [0..255[ do
+			var p = x*256 + y
+			bitmap.set_pixel(x, y, p)
+			assert bitmap.get_pixel(x, y) == p
+		end
+		for y in [0..255[ do for x in [0..255[ do
+			var p = x*256 + y
+			assert bitmap.get_pixel(x, y) == p
+		end
+	end
+
 	fun test_grayscale do
 		var bitmap = new Bitmap.with_size(400, 300)
 		for y in [0..300] do
