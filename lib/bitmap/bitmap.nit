@@ -251,6 +251,18 @@ class Bitmap
 		end
 	end
 
+	# Gets an individual pixel, where position (0, 0) represents the top-left pixel.
+	# abort if out of range
+	fun get_pixel(x: Int, y: Int): Int
+	do
+		if x >= 0 and y >= 0 and x < self.width and y < self.height then
+			# Since a bitmap stores its rows of pixels upside-down, y is mapped to
+			# height - 1 - y to make (0, 0) the top-left pixel
+			return self.data[self.height - 1 - y][x]
+		end
+		abort
+	end
+
 	# Sets an individual pixel, where position (0, 0) represents the top-left pixel.
 	fun set_pixel(x: Int, y: Int, color: Int)
 	do
