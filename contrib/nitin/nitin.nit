@@ -24,6 +24,15 @@ import nitc::frontend
 import nitc::parser_util
 
 redef class ToolContext
+
+	# --no-prompt
+	var opt_no_prompt = new OptionBool("--no-prompt", "Disable writing a prompt.")
+
+	redef init do
+		super
+		option_context.add_option(opt_no_prompt)
+	end
+
 	# Parse a full module given as a string
 	#
 	# Return a AModule or a AError
@@ -62,7 +71,13 @@ redef class ToolContext
 		var oldtext = ""
 
 		loop
-			var s = readline(prompt)
+			var s
+			if opt_no_prompt.value then
+				s = stdin.read_line
+				if s == "" and stdin.eof then s = null
+			else
+				s = readline(prompt)
+			end
 			if s == null then return null
 			if s == "" then continue
 
@@ -96,6 +111,10 @@ toolcontext.option_context.options_before_rest = true
 toolcontext.accept_no_arguments = true
 toolcontext.keep_going = true
 toolcontext.process_options(args)
+
+print args
+print toolcontext.opt_no_prompt.value
+print toolcontext.option_context.rest
 
 # We need a model to collect stufs
 var model = new Model
