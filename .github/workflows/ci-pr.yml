@@ -35,6 +35,11 @@ jobs:
       if: ${{ !cancelled() }}
     - run: misc/jenkins/checksignedoffby.sh
       if: ${{ !cancelled() }}
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        path: '*.xml'
+        name: sanity-check
 
   tests-some:
     runs-on: ubuntu-24.04
