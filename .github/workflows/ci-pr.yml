@@ -17,7 +17,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y $BASIC_PACKAGES
-    - run: exit 1 # foprce failure
     - run: make
     - uses: actions/upload-artifact@v4
       with:
@@ -78,7 +77,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        path: 'tests/out'
+        path: 'tests/out/*.res'
         name: tests-some-${{ matrix.engine }}-res
 
   tests-full:
@@ -118,7 +117,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        path: 'tests/out'
+        path: 'tests/out/*.res`'
         name: tests-full-${{ matrix.engine }}-res
 
   nitunit-some:
@@ -201,7 +200,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y $BASIC_PACKAGES
-    - run: exit 1 # Force fail
     - run: make bootstrap-full
 
   bench-fast:
