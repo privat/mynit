@@ -78,7 +78,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        path: 'tests/out'
+        path: 'tests/out/*.res'
         name: tests-some-${{ matrix.engine }}-res
 
   tests-full:
@@ -118,7 +118,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        path: 'tests/out'
+        path: 'tests/out/*.res`'
         name: tests-full-${{ matrix.engine }}-res
 
   nitunit-some:
