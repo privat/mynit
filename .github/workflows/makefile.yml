@@ -1,8 +1,6 @@
 name: Makefile CI
 
-on:
-  push:
-  pull_request:
+on: [ pull_request ]
 env:
   # BASIC_PACKAGES is used fo the basic tools (make)
   BASIC_PACKAGES: git build-essential ccache libgc-dev graphviz libunwind-dev libreadline-dev pkg-config
