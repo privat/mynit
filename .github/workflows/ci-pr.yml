@@ -277,12 +277,12 @@ jobs:
     - run: cat /etc/os-release
     - run: env
 
-event_file:
-  name: "Event File"
-  runs-on: ubuntu-latest
-  steps:
-  - name: Upload
-    uses: actions/upload-artifact@v4
-    with:
-      name: Event File
-      path: ${{ github.event_path }}
+  event_file:
+    name: "Event File"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
