@@ -29,11 +29,11 @@ jobs:
     - uses: actions/checkout@v4
     - run: misc/jenkins/ensuregit.sh
     - run: misc/jenkins/checkwhitespaces.sh
-      if: success() || failure()
+      if: ${{ !cancelled() }}
     - run: misc/jenkins/checklicense.sh
-      if: success() || failure()
+      if: ${{ !cancelled() }}
     - run: misc/jenkins/checksignedoffby.sh
-      if: success() || failure()
+      if: ${{ !cancelled() }}
 
   tests-some:
     runs-on: ubuntu-24.04
@@ -65,17 +65,17 @@ jobs:
     - run: cd tests && ./search_tests_git.sh origin/master HEAD > list
     - run: cd tests && ./tests.sh --engine ${{ matrix.engine }} `cat list`
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: 'tests/*.xml'
         name: tests-some-${{ matrix.engine }}
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: 'tests/out'
         name: tests-some-${{ matrix.engine }}-res
     - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         files: "tests/*.xml"
         comment_mode: off
@@ -111,17 +111,17 @@ jobs:
     - name: Run tests
       run: cd tests && ./testfull.sh --engine ${{ matrix.engine }}
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: 'tests/*.xml'
         name: tests-full-${{ matrix.engine }}
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: 'tests/out'
         name: tests-full-${{ matrix.engine }}-res
     - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         files: "tests/*.xml"
         comment_mode: off
@@ -151,12 +151,12 @@ jobs:
     - run: chmod +x bin/*
     - run: make nitunit-some
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: '*.xml'
         name: nitunit-some
     - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         files: "*.xml"
         comment_mode: off
@@ -186,12 +186,12 @@ jobs:
     - run: chmod +x bin/*
     - run: make nitunit-full
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: '*.xml'
         name: nitunit-full
     - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         files: "*.xml"
         comment_mode: off
@@ -208,12 +208,12 @@ jobs:
     - run: chmod +x bin/*
     - run: 'PATH=$PWD/bin:$PATH make test-contrib'
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: '*.xml'
         name: test-contrib
     - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         files: "*.xml"
         comment_mode: off
@@ -238,7 +238,7 @@ jobs:
     - run: chmod +x bin/*
     - run: 'PATH=$PWD/bin:$PATH make bench-fast'
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: |-
           benchmarks/*.dat
@@ -258,7 +258,7 @@ jobs:
     - run: chmod +x bin/*
     - run: make valgrind
     - uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: ${{ !cancelled() }}
       with:
         path: 'valgrind.out'
         name: valgrind
