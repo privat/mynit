@@ -74,12 +74,6 @@ jobs:
       with:
         path: 'tests/out'
         name: tests-some-${{ matrix.engine }}-res
-    - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ !cancelled() }}
-      with:
-        files: "tests/*.xml"
-        comment_mode: off
-        check_name: tests-some (${{ matrix.engine }}) Results
 
   tests-full:
     runs-on: ubuntu-24.04
@@ -120,12 +114,6 @@ jobs:
       with:
         path: 'tests/out'
         name: tests-full-${{ matrix.engine }}-res
-    - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ !cancelled() }}
-      with:
-        files: "tests/*.xml"
-        comment_mode: off
-        check_name: tests-full (${{ matrix.engine }}) Results
 
   nitunit-some:
     runs-on: ubuntu-24.04
@@ -155,12 +143,6 @@ jobs:
       with:
         path: '*.xml'
         name: nitunit-some
-    - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ !cancelled() }}
-      with:
-        files: "*.xml"
-        comment_mode: off
-        check_name: 'nitunit-some Results'
 
   nitunit-full:
     runs-on: ubuntu-24.04
@@ -190,12 +172,6 @@ jobs:
       with:
         path: '*.xml'
         name: nitunit-full
-    - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ !cancelled() }}
-      with:
-        files: "*.xml"
-        comment_mode: off
-        check_name: 'nitunit-full Results'
 
   test-contrib:
     runs-on: ubuntu-24.04
@@ -212,12 +188,6 @@ jobs:
       with:
         path: '*.xml'
         name: test-contrib
-    - uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ !cancelled() }}
-      with:
-        files: "*.xml"
-        comment_mode: off
-        check_name: 'test-contrib Results'
 
   bootstrap-full:
     runs-on: ubuntu-24.04
